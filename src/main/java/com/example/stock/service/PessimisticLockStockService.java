@@ -4,21 +4,16 @@ import com.example.stock.domain.Stock;
 import com.example.stock.repository.StockRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 @Service
-public class StockService {
+public class PessimisticLockStockService {
     private final StockRepository stockRepository;
-    public StockService(StockRepository stockRepository) {
+    public PessimisticLockStockService(StockRepository stockRepository) {
         this.stockRepository = stockRepository;
     }
     @Transactional
     public void decrease(Long id, Long quantity){
-        // Stock 조회
-        // 재고 감소
-        // 갱신된 값을 저장
-        Stock stock = stockRepository.findById(id).orElseThrow();
+        Stock stock = stockRepository.findByIdWithPessimisticLock(id);
         stock.decrease(quantity);
-
-        stockRepository.saveAndFlush(stock);
+        stockRepository.save(stock);
     }
 }
